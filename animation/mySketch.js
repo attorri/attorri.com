@@ -110,17 +110,13 @@ let count = 2
 let counter=0
 function setup() 
 {
-  createCanvas(1300, 900);
+  let canvas = createCanvas(600, 500);
+  canvas.parent('animation-container');
   background(255)
   // Right-tilting tree
   for(let i = 0; i < count; i++) 
 	{
-    PARTS.push(new particle(w(0.5), h(0.95), "#000", 100, 300, 0, 500, "trunk", PARTS, 1))
-  }
-  // Left-tilting tree (mirrored)
-  for(let i = 0; i < count; i++) 
-	{
-    PARTS.push(new particle(w(0.5), h(0.95), "#000", 100, 300, 0, 500, "trunk", PARTS, -1))
+    PARTS.push(new particle(w(0.3), h(0.95), "#000", 50, 300, 0, 500, "trunk", PARTS, 1))
   }
 }
 
@@ -128,18 +124,21 @@ function draw()
 {
 	counter++
 	push()
-	translate(-50,100)
+	translate(0,0)
   for(var p of PARTS) 
 	{
     for(let i = 0; i < 1; i++) p.update()
   }
 	pop()
-	
 }
 
 function smoothstep(start, end, amount) 
 {
   amount = Math.max(0, Math.min(1, amount));
   return (amount * amount * (3 - 2 * amount)) * (end - start) + start;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
