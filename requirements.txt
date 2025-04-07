@@ -1,0 +1,6 @@
+tensorflow
+torch
+transformers
+huggingface
+sagemaker
+boto3
