@@ -71,7 +71,7 @@ def converse_deepseek(prompt):
     response = bedrock_runtime.converse(
         modelId='us.deepseek.r1-v1:0',
         inferenceConfig={
-            "maxTokens": 100,
+            "maxTokens": 512,  # Increased token limit for fuller responses
         },
         system=system_messages,
         messages=messages,
@@ -81,12 +81,16 @@ def converse_deepseek(prompt):
     
 for prompt in prompts:
     _json = converse_deepseek(prompt)
-    response = _json['output']
+    content = _json['output']['message']['content']
     
     # Print both reasoning and final answer
     print("Prompt:", prompt)
-    print("\nReasoning:")
-    print(response[0]['text'])  # Reasoning
-    print("\nAnswer:")
-    print(response[1]['text'])  # Final answer
+    print("\nComplete Response:")
+    for item in content:
+        if 'reasoningContent' in item:
+            print("\nReasoning:")
+            print(item['reasoningContent']['reasoningText']['text'])
+        if 'text' in item:
+            print("\nFinal Answer:")
+            print(item['text'])
     print("-"*100)
