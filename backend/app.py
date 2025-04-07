@@ -78,19 +78,62 @@ def converse_deepseek(prompt):
     )
     
     return response
+
+
+def converse_stream_deepseek(prompt):
     
-for prompt in prompts:
-    _json = converse_deepseek(prompt)
-    content = _json['output']['message']['content']
+    system_messages = [
+        {
+            "text": "You are a helpful AI assistant. Provide brief reasoning followed by a concise answer.",
+        }
+    ]
+
+    messages = [
+        {
+           "role": "user",
+           "content": [
+               {
+                   "text": prompt,
+               }
+           ]
+        }
+    ]
     
-    # Print both reasoning and final answer
-    print("Prompt:", prompt)
-    print("\nComplete Response:")
-    for item in content:
-        if 'reasoningContent' in item:
-            print("\nReasoning:")
-            print(item['reasoningContent']['reasoningText']['text'])
-        if 'text' in item:
-            print("\nFinal Answer:")
-            print(item['text'])
-    print("-"*100)
+    streaming_response = bedrock_runtime.converse_stream(
+        modelId='us.deepseek.r1-v1:0',
+        inferenceConfig={
+            "maxTokens": 30000,            # Reduced token limit
+            "temperature": 0.5,          # Increased for more creative and unpredictable responses
+        },
+        system=system_messages,
+        messages=messages,
+    )
+    
+    print("\nPrompt:", prompt, "\n")
+    for chunk in streaming_response['stream']:
+        if 'contentBlockDelta' in chunk:
+            delta = chunk['contentBlockDelta']['delta']
+            if 'reasoningContent' in delta:
+                if 'text' in delta['reasoningContent']:
+                    reasoning_text = delta['reasoningContent']['text']
+                    print("\033[92m" + reasoning_text + "\033[0m", end="")
+            if 'text' in delta:
+                text = delta['text']
+                print(text, end="")
+# for prompt in prompts:
+#     _json = converse_deepseek(prompt)
+#     content = _json['output']['message']['content']
+    
+#     # Print both reasoning and final answer
+#     print("Prompt:", prompt)
+#     print("\nComplete Response:")
+#     for item in content:
+#         if 'reasoningContent' in item:
+#             print("\nReasoning:")
+#             print(item['reasoningContent']['reasoningText']['text'])
+#         if 'text' in item:
+#             print("\nFinal Answer:")
+#             print(item['text'])
+#     print("-"*100)
+
+converse_stream_deepseek(prompts[4])
