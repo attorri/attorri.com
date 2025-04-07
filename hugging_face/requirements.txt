@@ -9,3 +9,5 @@ sentencepiece>=0.1.99
 huggingface
 sagemaker
 boto3
+langchain
+langchain-huggingface
