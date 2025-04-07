@@ -1,0 +1,11 @@
+tensorflow
+torch>=2.0.0
+transformers>=4.36.0
+accelerate>=0.25.0
+safetensors>=0.4.0
+protobuf>=4.25.1
+numpy>=1.24.0
+sentencepiece>=0.1.99
+huggingface
+sagemaker
+boto3
