@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & Development - Chris Attorri</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" type="text/css" href="../styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #0069ff;
+            --secondary-blue: #00c7d8;
+            --dark-blue: #031b4e;
+            --text-color: #5b6987;
+            --heading-color: #031b4e;
+            --background-gradient: linear-gradient(180deg, #f8f9fc 0%, #fff 100%);
+            --card-shadow: 0 5px 15px rgba(3, 27, 78, 0.1);
+            --gradient-blue: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            --light-blue: rgba(0, 105, 255, 0.05);
+        }
+
+        body {
+            background: var(--background-gradient);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 20px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 84px;
+            color: var(--heading-color);
+            margin: 0 0 32px;
+            line-height: 1.1;
+            position: relative;
+        }
+
+        .hero-title-part {
+            display: block;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: var(--text-color);
+            margin-bottom: 48px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-image-container {
+            margin-top: 80px;
+            position: relative;
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+            border-radius: 16px;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-image-container:hover .hero-image {
+            transform: scale(1.05);
+        }
+
+        .blue-orb {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            background: var(--gradient-blue);
+            filter: blur(120px);
+            opacity: 0.07;
+            border-radius: 50%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            top: -400px;
+            right: -200px;
+            animation: floatOrb 20s infinite alternate ease-in-out;
+        }
+
+        .orb-2 {
+            bottom: -300px;
+            left: -200px;
+            width: 600px;
+            height: 600px;
+            opacity: 0.05;
+            animation: floatOrb 15s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes floatOrb {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(100px, 50px);
+            }
+        }
+
+        .feature-grid {
+            margin-top: 120px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(3, 27, 78, 0.1);
+        }
+
+        .feature-card h3 {
+            color: var(--heading-color);
+            margin: 0 0 16px;
+            font-size: 20px;
+        }
+
+        .feature-card p {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--primary-blue);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .wave-decoration {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            opacity: 0.1;
+            clip-path: polygon(0% 100%, 100% 100%, 100% 40%, 75% 60%, 50% 40%, 25% 60%, 0% 40%);
+        }
+
+        .stats-section {
+            background: var(--light-blue);
+            padding: 80px 20px;
+            margin: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: var(--gradient-blue);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .testimonials {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 120px;
+            color: var(--primary-blue);
+            opacity: 0.1;
+            font-family: serif;
+        }
+
+        .quote {
+            font-style: italic;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .author {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .cta-section {
+            background: var(--gradient-blue);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+            margin-top: 80px;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-button-white {
+            display: inline-block;
+            background: white;
+            color: var(--primary-blue);
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 32px;
+            transition: transform 0.2s;
+        }
+
+        .cta-button-white:hover {
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--primary-blue);
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <a href="/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
+                <path d="M21 12a9 9 0 1 0 -8.012 8.946"></path>
+                <path d="M9 10h.01"></path>
+                <path d="M15 10h.01"></path>
+                <path d="M9.5 15a3.59 3.59 0 0 0 2.774 .99"></path>
+                <path d="M18.994 21.5l2.518 -2.58a1.74 1.74 0 0 0 .004 -2.413a1.627 1.627 0 0 0 -2.346 -.005l-.168 .172l-.168 -.172a1.627 1.627 0 0 0 -2.346 -.004a1.74 1.74 0 0 0 -.004 2.412l2.51 2.59z"></path>
+            </svg>
+        </a>
+        <nav class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="#" class="nav-link">About</a>
+            <a href="#" class="button-primary">Get Started</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="hero-container">
+            <div class="blue-orb orb-1"></div>
+            <div class="blue-orb orb-2"></div>
+            <div class="hero-content">
+                <h1>
+                    <span class="hero-title-part">The Future of</span>
+                    <span class="hero-title-part gradient-text">Code</span>
+                    <span class="hero-title-part">Development</span>
+                </h1>
+                <p class="subtitle">Discover how AI is revolutionizing the way we build software, making development faster, more efficient, and more accessible than ever before.</p>
+                
+                <div class="hero-image-container">
+                    <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995" 
+                         alt="AI Code Generation" 
+                         class="hero-image" />
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Automated Code Generation</h3>
+                        <p>AI models can now generate production-ready code from natural language descriptions, reducing development time by up to 80%.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Intelligent Debugging</h3>
+                        <p>Advanced AI systems can identify and fix bugs faster than human developers, improving code quality and reliability.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Code Optimization</h3>
+                        <p>AI-powered tools automatically optimize code for better performance and efficiency, surpassing human capabilities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">80%</div>
+                    <p>Development Time Saved</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3x</div>
+                    <p>Faster Bug Resolution</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">95%</div>
+                    <p>Code Accuracy</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <p>AI Availability</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <h2 class="section-title">What Developers Are Saying</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <p class="quote">AI has completely transformed our development workflow. What used to take days now takes hours.</p>
+                    <p class="author">Sarah Chen, Senior Developer</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="quote">The code optimization suggestions have improved our app's performance by 40%. It's like having a senior architect available 24/7.</p>
+                    <p class="author">Michael Rodriguez, Tech Lead</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="quote">The future of coding is here. AI doesn't just write code - it understands context and business logic.</p>
+                    <p class="author">Alex Thompson, CTO</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="cta-content">
+                <h2>Ready to Transform Your Development Process?</h2>
+                <p>Join thousands of developers who are already using AI to write better code, faster.</p>
+                <a href="#" class="cta-button-white">Get Started Now</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animate title parts sequentially
+            gsap.to('.hero-title-part', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                stagger: 0.2,
+                ease: 'power3.out'
+            });
+
+            // Animate subtitle
+            gsap.to('.subtitle', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                delay: 0.8,
+                ease: 'power3.out'
+            });
+
+            // Animate hero image
+            gsap.to('.hero-image-container', {
+                opacity: 1,
+                y: 0,
+                duration: 1.2,
+                delay: 1,
+                ease: 'power3.out'
+            });
+
+            // Animate feature grid
+            gsap.to('.feature-grid', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                delay: 1.2,
+                ease: 'power3.out'
+            });
+
+            gsap.from('.stat-card', {
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                stagger: 0.2,
+                scrollTrigger: {
+                    trigger: '.stats-section',
+                    start: 'top center+=100'
+                }
+            });
+
+            gsap.from('.testimonial-card', {
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                stagger: 0.2,
+                scrollTrigger: {
+                    trigger: '.testimonials',
+                    start: 'top center+=100'
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

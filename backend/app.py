@@ -1,4 +1,6 @@
 import boto3, json
+from flask import Flask, send_from_directory, request, jsonify, abort
+import os
 
 bedrock = boto3.client(
     service_name="bedrock",
@@ -81,7 +83,6 @@ def converse_deepseek(prompt):
 
 
 def converse_stream_deepseek(prompt):
-    
     system_messages = [
         {
             "text": "You are a helpful AI assistant. Provide brief reasoning followed by a concise answer.",
@@ -102,24 +103,15 @@ def converse_stream_deepseek(prompt):
     streaming_response = bedrock_runtime.converse_stream(
         modelId='us.deepseek.r1-v1:0',
         inferenceConfig={
-            "maxTokens": 30000,            # Reduced token limit
-            "temperature": 0.5,          # Increased for more creative and unpredictable responses
+            "maxTokens": 30000,
+            "temperature": 0.5,
         },
         system=system_messages,
         messages=messages,
     )
     
-    print("\nPrompt:", prompt, "\n")
-    for chunk in streaming_response['stream']:
-        if 'contentBlockDelta' in chunk:
-            delta = chunk['contentBlockDelta']['delta']
-            if 'reasoningContent' in delta:
-                if 'text' in delta['reasoningContent']:
-                    reasoning_text = delta['reasoningContent']['text']
-                    print("\033[92m" + reasoning_text + "\033[0m", end="")
-            if 'text' in delta:
-                text = delta['text']
-                print(text, end="")
+    return streaming_response
+
 # for prompt in prompts:
 #     _json = converse_deepseek(prompt)
 #     content = _json['output']['message']['content']
@@ -136,4 +128,59 @@ def converse_stream_deepseek(prompt):
 #             print(item['text'])
 #     print("-"*100)
 
-converse_stream_deepseek(prompts[4])
+# Initialize Flask app
+app = Flask(__name__)
+
+# Get the project root directory
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Serve main site files
+@app.route('/')
+def home():
+    try:
+        return send_from_directory(PROJECT_ROOT, 'index.html')
+    except Exception as e:
+        print(f"Error serving index.html: {str(e)}")
+        abort(404)
+
+# Serve AI section
+@app.route('/ai')
+def ai_page():
+    try:
+        return send_from_directory(os.path.join(PROJECT_ROOT, 'ai'), 'index.html')
+    except Exception as e:
+        print(f"Error serving AI page: {str(e)}")
+        abort(404)
+
+@app.route('/ai/ai.js')
+def ai_js():
+    try:
+        return send_from_directory(os.path.join(PROJECT_ROOT, 'ai'), 'ai.js')
+    except Exception as e:
+        print(f"Error serving ai.js: {str(e)}")
+        abort(404)
+
+# Chat endpoint
+@app.route('/ai/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    prompt = data.get('prompt', '')
+    
+    try:
+        response = converse_stream_deepseek(prompt)
+        answer = ""
+        for chunk in response['stream']:
+            if 'contentBlockDelta' in chunk:
+                delta = chunk['contentBlockDelta']['delta']
+                if 'text' in delta:
+                    answer += delta['text']
+        
+        return jsonify({'answer': answer})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    # Print the paths for debugging
+    print(f"Project root: {PROJECT_ROOT}")
+    print(f"AI directory: {os.path.join(PROJECT_ROOT, 'ai')}")
+    app.run(debug=True, port=5000)
