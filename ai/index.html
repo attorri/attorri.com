@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" type="text/css" href="../styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
         :root {
             --primary-blue: #0069ff;
@@ -18,6 +19,8 @@
             --card-shadow: 0 5px 15px rgba(3, 27, 78, 0.1);
             --gradient-blue: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
             --light-blue: rgba(0, 105, 255, 0.05);
+            --purple-gradient: linear-gradient(135deg, #8c4bff 0%, #ae48ff 100%);
+            --card-border: 1px solid rgba(3, 27, 78, 0.1);
         }
 
         body {
@@ -29,16 +32,17 @@
         }
 
         .hero-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 120px 20px 60px;
+            max-width: 100%;
+            margin: 0;
+            padding: 120px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, #f8f9fc 0%, #eef2ff 100%);
         }
 
         .hero-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
@@ -53,18 +57,34 @@
         }
 
         .hero-title-part {
-            display: block;
+            display: inline-block;
             opacity: 0;
             transform: translateY(30px);
+            font-size: 96px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title-part.gradient {
+            background: linear-gradient(135deg, #0069ff 0%, #00c7d8 50%, #0069ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 100%;
+            animation: gradientFlow 8s linear infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .subtitle {
-            font-size: 28px;
+            font-size: 32px;
+            line-height: 1.4;
             color: var(--text-color);
-            margin-bottom: 48px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 900px;
+            margin: 32px auto 64px;
             opacity: 0;
             transform: translateY(20px);
         }
@@ -93,29 +113,29 @@
         }
 
         .blue-orb {
-            position: fixed;
-            width: 800px;
-            height: 800px;
-            background: var(--gradient-blue);
-            filter: blur(120px);
-            opacity: 0.07;
+            position: absolute;
+            width: 1200px;
+            height: 1200px;
+            background: linear-gradient(135deg, rgba(0, 105, 255, 0.1) 0%, rgba(0, 199, 216, 0.1) 100%);
+            filter: blur(150px);
+            opacity: 0.5;
             border-radius: 50%;
             z-index: 1;
             pointer-events: none;
         }
 
         .orb-1 {
-            top: -400px;
-            right: -200px;
+            top: -600px;
+            right: -300px;
             animation: floatOrb 20s infinite alternate ease-in-out;
         }
 
         .orb-2 {
-            bottom: -300px;
-            left: -200px;
-            width: 600px;
-            height: 600px;
-            opacity: 0.05;
+            bottom: -400px;
+            left: -300px;
+            width: 800px;
+            height: 800px;
+            opacity: 0.3;
             animation: floatOrb 15s infinite alternate-reverse ease-in-out;
         }
 
@@ -129,28 +149,63 @@
         }
 
         .feature-grid {
-            margin-top: 120px;
-            opacity: 0;
-            transform: translateY(30px);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 80px;
         }
 
-        .feature-card {
+        .product-card {
             background: white;
-            border-radius: 8px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 32px;
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(3, 27, 78, 0.1);
+            border: var(--card-border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        .feature-card h3 {
-            color: var(--heading-color);
-            margin: 0 0 16px;
-            font-size: 20px;
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(3, 27, 78, 0.15);
         }
 
-        .feature-card p {
-            margin: 0;
-            color: var(--text-color);
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-blue);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .learn-more-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .learn-more-link::after {
+            content: '→';
+            margin-left: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .learn-more-link:hover::after {
+            transform: translateX(5px);
         }
 
         .gradient-text {
@@ -195,28 +250,76 @@
         }
 
         .stats-grid {
-            max-width: 1200px;
-            margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            text-align: center;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin: 80px auto;
+            max-width: 1200px;
         }
 
-        .stat-card {
-            background: white;
-            padding: 32px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
+        .stat-item {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            border: 1px solid rgba(3, 27, 78, 0.1);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(3, 27, 78, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(3, 27, 78, 0.1);
         }
 
         .stat-number {
-            font-size: 48px;
-            font-weight: 700;
-            background: var(--gradient-blue);
+            font-size: 72px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8c4bff 0%, #ae48ff 50%, #8c4bff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            line-height: 1;
+            background-size: 200% 100%;
+            animation: gradientFlow 8s linear infinite;
+        }
+
+        .stat-label {
+            font-size: 20px;
+            color: var(--text-color);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .gradient-border {
+            position: relative;
+            border-radius: 12px;
+            padding: 1px;
+            background: var(--gradient-blue);
+        }
+
+        .gradient-border-content {
+            background: white;
+            border-radius: 11px;
+            padding: 32px;
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: var(--gradient-blue);
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(20px);
         }
 
         .testimonials {
@@ -304,6 +407,10 @@
     </style>
 </head>
 <body>
+    <div class="announcement-bar">
+        Learn about the latest in AI development. Join our webinar →
+    </div>
+
     <header class="top-nav">
         <a href="/" class="logo">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2">
@@ -325,32 +432,48 @@
         <div class="hero-container">
             <div class="blue-orb orb-1"></div>
             <div class="blue-orb orb-2"></div>
+            <div class="floating-elements">
+                <div class="floating-element" style="width: 300px; height: 300px; top: 10%; right: -150px;"></div>
+                <div class="floating-element" style="width: 200px; height: 200px; bottom: 20%; left: -100px;"></div>
+            </div>
             <div class="hero-content">
                 <h1>
                     <span class="hero-title-part">The Future of</span>
-                    <span class="hero-title-part gradient-text">Code</span>
+                    <span class="hero-title-part gradient">Code</span>
                     <span class="hero-title-part">Development</span>
                 </h1>
                 <p class="subtitle">Discover how AI is revolutionizing the way we build software, making development faster, more efficient, and more accessible than ever before.</p>
                 
-                <div class="hero-image-container">
-                    <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995" 
-                         alt="AI Code Generation" 
-                         class="hero-image" />
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">#1</div>
+                        <div class="stat-label">In AI Development Tools</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Code Accuracy</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">>600k</div>
+                        <div class="stat-label">Developers Using Our Platform</div>
+                    </div>
                 </div>
 
                 <div class="feature-grid">
-                    <div class="feature-card">
-                        <h3>Automated Code Generation</h3>
-                        <p>AI models can now generate production-ready code from natural language descriptions, reducing development time by up to 80%.</p>
+                    <div class="product-card">
+                        <h3>AI Code Generation</h3>
+                        <p>Generate production-ready code from natural language descriptions.</p>
+                        <a href="#" class="learn-more-link">Learn more</a>
                     </div>
-                    <div class="feature-card">
-                        <h3>Intelligent Debugging</h3>
-                        <p>Advanced AI systems can identify and fix bugs faster than human developers, improving code quality and reliability.</p>
+                    <div class="product-card">
+                        <h3>Intelligent Testing</h3>
+                        <p>Automated testing and validation powered by advanced AI.</p>
+                        <a href="#" class="learn-more-link">Learn more</a>
                     </div>
-                    <div class="feature-card">
-                        <h3>Code Optimization</h3>
-                        <p>AI-powered tools automatically optimize code for better performance and efficiency, surpassing human capabilities.</p>
+                    <div class="product-card">
+                        <h3>Smart Optimization</h3>
+                        <p>AI-driven performance improvements and code refinement.</p>
+                        <a href="#" class="learn-more-link">Learn more</a>
                     </div>
                 </div>
             </div>
@@ -405,62 +528,64 @@
     </main>
 
     <script>
+        gsap.registerPlugin(ScrollTrigger);
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Animate title parts sequentially
+            // Animate title parts with bounce
             gsap.to('.hero-title-part', {
                 opacity: 1,
                 y: 0,
                 duration: 1,
                 stagger: 0.2,
-                ease: 'power3.out'
+                ease: "back.out(1.2)"
             });
 
-            // Animate subtitle
+            // Animate subtitle with fade up
             gsap.to('.subtitle', {
                 opacity: 1,
                 y: 0,
                 duration: 1,
                 delay: 0.8,
-                ease: 'power3.out'
+                ease: "power3.out"
             });
 
-            // Animate hero image
-            gsap.to('.hero-image-container', {
-                opacity: 1,
-                y: 0,
-                duration: 1.2,
-                delay: 1,
-                ease: 'power3.out'
-            });
-
-            // Animate feature grid
-            gsap.to('.feature-grid', {
-                opacity: 1,
-                y: 0,
-                duration: 1,
-                delay: 1.2,
-                ease: 'power3.out'
-            });
-
-            gsap.from('.stat-card', {
-                opacity: 0,
-                y: 30,
-                duration: 0.8,
+            // Animate stats with count up
+            gsap.from('.stat-number', {
+                textContent: 0,
+                duration: 2,
+                ease: "power1.out",
+                snap: { textContent: 1 },
                 stagger: 0.2,
                 scrollTrigger: {
-                    trigger: '.stats-section',
+                    trigger: '.stats-grid',
                     start: 'top center+=100'
                 }
             });
 
-            gsap.from('.testimonial-card', {
+            // Animate product cards
+            gsap.from('.product-card', {
                 opacity: 0,
-                y: 30,
+                y: 50,
                 duration: 0.8,
                 stagger: 0.2,
+                ease: "power3.out",
                 scrollTrigger: {
-                    trigger: '.testimonials',
+                    trigger: '.feature-grid',
                     start: 'top center+=100'
+                }
+            });
+
+            // Animate floating elements
+            gsap.to('.floating-element', {
+                y: "random(-20, 20)",
+                x: "random(-20, 20)",
+                duration: "random(3, 5)",
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                stagger: {
+                    amount: 2,
+                    from: "random"
                 }
             });
         });
