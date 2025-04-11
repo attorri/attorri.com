@@ -71,7 +71,7 @@ class TitanClient:
             temperature (float): Sampling temperature (0.0 to 1.0)
         """
         try:
-            print("\n\033[1;36m Titan AI\033[0m")
+            print("\n\033[1;36mTitan AI\033[0m")
             print("\033[1;37mPrompt:\033[0m", prompt)
             print("\033[1;37mResponse:\033[0m ", end="")
             
