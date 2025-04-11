@@ -404,6 +404,33 @@
             transform: translateY(-2px);
         }
 
+        .yolo-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #8c4bff 0%, #ae48ff 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            margin: 20px 0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(140, 75, 255, 0.3);
+        }
+
+        .yolo-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(140, 75, 255, 0.4);
+        }
+
+        .yolo-button:active {
+            transform: translateY(1px);
+        }
+
         .feature-icon {
             font-size: 24px;
             margin-bottom: 16px;
@@ -417,11 +444,11 @@
     </div>
 
     <header class="top-nav">
-        <a href="/" class="logo">
+        <a href="../index.html" class="logo">
             Chris Attorri
         </a>
         <nav class="nav-links">
-            <a href="/" class="nav-link">Home</a>
+            <a href="../index.html" class="nav-link">Home</a>
             <a href="#" class="nav-link">About</a>
             <a href="#" class="button-primary">Get Started</a>
         </nav>
@@ -443,6 +470,10 @@
                 </h1>
                 <p class="subtitle">Discover how I use AI to engineer software faster than ever before.</p>
                 
+                <button class="yolo-button" onclick="startYOLO()">
+                    <span>Start YOLO Detection</span>
+                </button>
+
                 <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 48px;">
                     <div class="stat-card" style="background: rgba(255, 255, 255, 0.9);">
                         <div class="stat-number" style="background: linear-gradient(135deg, #6366f1 0%, #a78bfa 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">#1</div>
@@ -528,6 +559,26 @@
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
+
+        function startYOLO() {
+            fetch('/ai/start-yolo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('YOLO detection started! Check your terminal for the camera feed.');
+                } else {
+                    alert('Failed to start YOLO detection: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error starting YOLO detection. Make sure the server is running:\n\n1. Open terminal\n2. Run: cd backend && python server.py');
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             // Animate title parts with bounce
