@@ -9,13 +9,13 @@ class Person:
         self.hair_color = hair_color
     
     def professional_summary(self):
-        return f"Name: {self.name}, Age: {self.age}, Gender: {self.gender}, Height: {self.height}, Weight: {self.weight}, Hair Color: {self.hair_color}"
+        return f"Name: {self.name}, Age: {self.age}, Gender: {self.gender}, Height: {self.height}cm, Weight: {self.weight}kg, Hair Color: {self.hair_color}"
    
    
    
 
 def main():
-    person = Person(name="John", age=20, gender="male", height=180, weight=70, hair_color="black")
+    person = Person(hair_color="brown", age=23, gender="male", height=180, weight=70, name="Chris")
     print(person.professional_summary())
 
 if __name__ == "__main__":
