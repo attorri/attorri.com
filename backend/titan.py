@@ -28,40 +28,6 @@ class TitanClient:
             time.sleep(delay)
         print()
 
-    def generate(self, prompt: str, max_tokens: int = 150, temperature: float = 1.0) -> Optional[str]:
-        """Generate text using Titan model.
-        
-        Args:
-            prompt (str): The input prompt
-            max_tokens (int): Maximum number of tokens to generate
-            temperature (float): Sampling temperature (0.0 to 1.0)
-            
-        Returns:
-            Optional[str]: Generated text
-        """
-        try:
-            response = self.runtime_client.invoke_model(
-                modelId=self.model_id,
-                body=json.dumps({
-                    "inputText": prompt,
-                    "textGenerationConfig": {
-                        "maxTokenCount": max_tokens,
-                        "temperature": temperature,
-                        "topP": 0.9,
-                        "stopSequences": []
-                    }
-                }),
-                contentType='application/json',
-                accept='application/json'
-            )
-            
-            response_body = json.loads(response['body'].read())
-            return response_body['results'][0]['outputText']
-            
-        except Exception as e:
-            print(f"Error generating text: {str(e)}")
-            return None
-
     def generate_stream(self, prompt: str, max_tokens: int = 8192, temperature: float = 1.0) -> None:
         """Generate text using Titan model with streaming.
         
