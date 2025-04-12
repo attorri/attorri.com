@@ -11,9 +11,11 @@ class Person:
     def professional_summary(self):
         return f"Name: {self.name}, Age: {self.age}, Gender: {self.gender}, Height: {self.height}, Weight: {self.weight}, Hair Color: {self.hair_color}"
    
+   
+   
 
 def main():
-    person = Person("John", 20, "male", 180, 70, "black")
+    person = Person(name="John", age=20, gender="male", height=180, weight=70, hair_color="black")
     print(person.professional_summary())
 
 if __name__ == "__main__":
