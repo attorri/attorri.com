@@ -4,3 +4,4 @@ transformers
 huggingface
 sagemaker
 boto3
+python-dotenv==1.0.0
