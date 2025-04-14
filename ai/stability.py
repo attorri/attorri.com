@@ -7,6 +7,7 @@ load_dotenv(override=True)
 api_key = os.getenv('STABILITY_API_KEY')
 
 def get_api_key():
+    # Verify that the new API key is being used
     print("API Key:")
     print(api_key)
 
@@ -26,7 +27,8 @@ def call_stability_api(prompt):
     )
 
     if response.status_code == 200:
-        with open("./lighthouse.webp", 'wb') as file:
+        file_name = prompt.replace(" ", "_") + ".webp"
+        with open(f"./{file_name}.webp", 'wb') as file:
             file.write(response.content)
     else:
         raise Exception(str(response.json()))
