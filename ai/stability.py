@@ -7,7 +7,7 @@ load_dotenv()
 api_key = os.getenv('STABILITY_API_KEY')
 
 response = requests.post(
-    f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
+    f"https://api.stability.ai/v2beta/stable-image/generate/core",
     headers={
         "authorization": f"Bearer sk-MYAPIKEY",
         "accept": "image/*"
