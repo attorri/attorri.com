@@ -4,9 +4,10 @@ interface SectionBoxProps {
     title: string;
     description: string;
     icon: string;
+    href?: string;
 }
 
-function SectionBox({ title, description, icon}: SectionBoxProps) {
+function SectionBox({ title, description, icon, href}: SectionBoxProps) {
     const renderIcon = () => {
         switch (icon) {
             case 'brain':
@@ -80,7 +81,7 @@ function SectionBox({ title, description, icon}: SectionBoxProps) {
                 display: 'flex',
                 alignItems: 'flex-start'
             }}>{description}</p>
-            <a href="#" className="card-link" style={{
+            <a href={href} className="card-link" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 color: 'var(--primary-blue)',
