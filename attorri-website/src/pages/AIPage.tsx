@@ -90,15 +90,15 @@ const AIPage: React.FC = () => {
                                 WebkitTextFillColor: 'transparent',
                                 backgroundSize: '200% 100%',
                                 animation: 'gradientFlow 8s linear infinite'
-                            }}>Automation</span>
-                            <span className="hero-title-part">of</span>
+                            }}>Automation </span>
+                            <span className="hero-title-part">of </span>
                             <span className="hero-title-part gradient" style={{
                                 background: 'linear-gradient(135deg, #0069ff 0%, #00c7d8 50%, #0069ff 100%)',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                                 backgroundSize: '200% 100%',
                                 animation: 'gradientFlow 8s linear infinite'
-                            }}>Work</span>
+                            }}>Work </span>
                             <span className="hero-title-part">as we know it.</span>
                         </h1>
                         <p className="subtitle" style={{
