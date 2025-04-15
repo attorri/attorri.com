@@ -472,4 +472,15 @@ body {
 
 .progress-number:hover::after {
     transform: scaleX(1);
+}
+
+/* AI Page specific hero styles */
+.ai-hero-title {
+    opacity: 1;
+    transform: none;
+}
+
+.ai-hero-subtitle {
+    opacity: 1;
+    transform: none;
 } 

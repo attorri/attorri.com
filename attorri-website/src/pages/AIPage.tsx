@@ -1,9 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../styles.css';
 import gptRobots from '../assets/gpt_robots_2.png';
 import HeroSection from '../HeroSection';
 
 const AIPage: React.FC = () => {
+    useEffect(() => {
+        // Initialize GSAP animations
+        const gsap = (window as any).gsap;
+        if (gsap) {
+            gsap.to('.ai-hero-title', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "back.out(1.2)"
+            });
+
+            gsap.to('.ai-hero-subtitle', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                delay: 0.3,
+                ease: "power3.out"
+            });
+        }
+    }, []);
+
     return (
         <div className="ai-page-container" style={{
             display: 'flex',
@@ -16,7 +37,7 @@ const AIPage: React.FC = () => {
                 width: '100%', 
                 position: 'relative', 
                 zIndex: 1,
-                marginBottom: '120px' // Add margin to bottom of hero container
+                marginBottom: '120px' // Add margin to bottom of hero container,
             }}>
                 <HeroSection 
                     title={[
@@ -24,6 +45,7 @@ const AIPage: React.FC = () => {
                         {'Automation':'gradient', 'Work':'gradient'}
                     ]} 
                     subtitle="AI will fundamentally transform what it means to work. Here's a few stats I would use to describe its current state." 
+                    className="ai"
                 />
             </div>
 

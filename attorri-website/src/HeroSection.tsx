@@ -4,13 +4,14 @@ import '../styles.css';
 interface HeroSectionProps {
     title: [Array<string>, Record<string, string>];
     subtitle: string;
+    className?: string;
 }
 
-function HeroTitle(title: [Array<string>, Record<string, string>]) {
+function HeroTitle(title: [Array<string>, Record<string, string>], className?: string) {
     const titleElements = title[0].map((word, index) => {
         if (word in title[1] && title[1][word] === 'gradient') {
             return (
-                <span key={index} className="hero-title-part gradient" style={{
+                <span key={index} className={`hero-title-part gradient ${className ? `${className}-hero-title-part` : ''}`} style={{
                     background: 'linear-gradient(135deg, #0069ff 0%, #00c7d8 50%, #0069ff 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
@@ -19,7 +20,7 @@ function HeroTitle(title: [Array<string>, Record<string, string>]) {
                 }}>{word} </span>
             );
         }
-        return <span key={index} className="hero-title-part">{word} </span>;
+        return <span key={index} className={`hero-title-part ${className ? `${className}-hero-title-part` : ''}`}>{word} </span>;
     });
 
     return (
@@ -29,15 +30,15 @@ function HeroTitle(title: [Array<string>, Record<string, string>]) {
             lineHeight: 1.1, 
             position: 'relative',
             color: 'var(--heading-color)'
-        }}>
+        }} className={className ? `${className}-hero-title` : 'hero-title'}>
             {titleElements}
         </h1>
     );
 }
 
-function HeroSection({ title, subtitle }: HeroSectionProps) {
+function HeroSection({ title, subtitle, className }: HeroSectionProps) {
     return (
-        <section className="hero-section" style={{
+        <section className={`hero-section ${className ? `${className}-hero-section` : ''}`} style={{
             maxWidth: '100%',
             margin: 0,
             padding: '160px 20px',
@@ -87,13 +88,14 @@ function HeroSection({ title, subtitle }: HeroSectionProps) {
                 position: 'relative',
                 zIndex: 2
             }}>
-                {HeroTitle(title)}
-                <p className="hero-subtitle" style={{
+                {HeroTitle(title, className)}
+                <p className={className ? `${className}-hero-subtitle` : 'hero-subtitle'} style={{
                     fontSize: '24px',
                     lineHeight: 1.6,
                     maxWidth: '800px',
                     margin: '32px auto 0',
-                    color: 'var(--text-color)'
+                    color: 'var(--text-color)',
+                    opacity: 1
                 }}>{subtitle}</p>
             </div>
         </section>
