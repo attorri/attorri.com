@@ -291,6 +291,28 @@ body {
     text-align: center;
     color: white;
     margin-top: 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.cta-content h2 {
+    font-size: 48px;
+    margin-bottom: 24px;
+    color: white;
+}
+
+.cta-content p {
+    font-size: 20px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .cta-button-white {
@@ -301,12 +323,13 @@ body {
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
-    margin-top: 32px;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .cta-button-white:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .page-content {
@@ -483,4 +506,33 @@ body {
 .ai-hero-subtitle {
     opacity: 1;
     transform: none;
+}
+
+.hover-gradient {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #0069ff, #00c7d8, #0069ff);
+    background-size: 200% 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+.hover-gradient:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.2);
+}
+
+.hover-gradient:hover::before {
+    opacity: 1;
+    animation: gradientFlow 8s linear infinite;
 } 

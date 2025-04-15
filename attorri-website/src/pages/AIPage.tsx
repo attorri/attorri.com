@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import '../styles.css';
 import gptRobots from '../assets/gpt_robots_2.png';
 import HeroSection from '../HeroSection';
-
+import ProductCard from '../ProductCard';
+import StatCard from '../StatCard';
 const AIPage: React.FC = () => {
     useEffect(() => {
         // Initialize GSAP animations
@@ -37,7 +38,6 @@ const AIPage: React.FC = () => {
                 width: '100%', 
                 position: 'relative', 
                 zIndex: 1,
-                marginBottom: '120px' // Add margin to bottom of hero container,
             }}>
                 <HeroSection 
                     title={[
@@ -73,18 +73,9 @@ const AIPage: React.FC = () => {
                         marginBottom: '40px'
                     }}>Key Statistics</h2>
                     <div className="stats-grid">
-                        <div className="stat-card">
-                            <div className="stat-number">#1</div>
-                            <p>In analysis & pattern recognition</p>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-number">99.9%</div>
-                            <p>Code/Natural Language Accuracy</p>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-number">100%</div>
-                            <p>Guaranteed to be better than you</p>
-                        </div>
+                        <StatCard value="#1" title="In analysis & pattern recognition" />
+                        <StatCard value="99.9%" title="Code/Natural Language Accuracy" />
+                        <StatCard value="100%" title="Guaranteed to be better than you" />
                     </div>
                 </section>
 
@@ -103,21 +94,9 @@ const AIPage: React.FC = () => {
                         marginBottom: '40px'
                     }}>Featured Content</h2>
                     <div className="feature-grid">
-                        <div className="product-card">
-                            <h3>AI in Repetitive Tasks</h3>
-                            <p>View this week's post on how AI has been shown to be a disruptor.</p>
-                            <a href="#" className="learn-more-link">Learn more</a>
-                        </div>
-                        <div className="product-card">
-                            <h3>Vibe Coding</h3>
-                            <p>View this week's code I made entirely with AI.</p>
-                            <a href="#" className="learn-more-link">Learn more</a>
-                        </div>
-                        <div className="product-card">
-                            <h3>Universally Beneficial Changes</h3>
-                            <p>View this week's post on how these changes will benefit society.</p>
-                            <a href="#" className="learn-more-link">Learn more</a>
-                        </div>
+                        <ProductCard title="AI in Repetitive Tasks" description="View this week's post on how AI has been shown to be a disruptor." />
+                        <ProductCard title="Vibe Coding" description="View this week's code I made entirely with AI." />
+                        <ProductCard title="Universally Beneficial Changes" description="View this week's post on how these changes will benefit society." />
                     </div>
                 </section>
 
@@ -170,22 +149,10 @@ const AIPage: React.FC = () => {
                         marginBottom: '40px'
                     }}>Basic AI Applications</h2>
                     <div className="stats-grid">
-                        <button className="stat-card" style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%' }}>
-                            <div className="stat-number">YOLO</div>
-                            <p>Object Recognition</p>
-                        </button>
-                        <div className="stat-card">
-                            <div className="stat-number">CNN</div>
-                            <p>Image Generation</p>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-number">$10T+</div>
-                            <p>Business Opportunities</p>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-number">LLMs</div>
-                            <p>Optimal Usage</p>
-                        </div>
+                        <StatCard value="YOLO" title="Object Recognition" />
+                        <StatCard value="CNN" title="Image Generation" />
+                        <StatCard value="LLMs" title="Optimal Usage" />
+                        <StatCard value="$10T+" title="Business Opportunities" />
                     </div>
                 </section>
 
@@ -216,15 +183,6 @@ const AIPage: React.FC = () => {
                             <p className="quote">The future of coding is here. AI doesn't just write code - it understands context and business logic.</p>
                             <p className="author">Alex Thompson, CTO</p>
                         </div>
-                    </div>
-                </section>
-
-                {/* CTA Section */}
-                <section className="cta-section">
-                    <div className="cta-content">
-                        <h2>Curious to learn more?</h2>
-                        <p>Join our newsletter to get the latest updates on me and my interests. I'm making sweeping changes to my life and I'd love to have you along for the ride.</p>
-                        <a href="#" className="cta-button-white">Get Plugged In Now</a>
                     </div>
                 </section>
             </div>
