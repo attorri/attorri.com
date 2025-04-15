@@ -96,7 +96,7 @@ const AIPage: React.FC = () => {
                     <div className="feature-grid">
                         <ProductCard title="AI in Repetitive Tasks" description="View this week's post on how AI has been shown to be a disruptor." />
                         <ProductCard title="Vibe Coding" description="View this week's code I made entirely with AI." />
-                        <ProductCard title="Universally Beneficial Changes" description="View this week's post on how these changes will benefit society." />
+                        <ProductCard title="Universal Benefits" description="View this week's post on how these changes will benefit society." />
                     </div>
                 </section>
 
