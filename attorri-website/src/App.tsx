@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SectionBox from './SectionBox';
 import AIPage from './pages/AIPage';
+import HeroSection from './HeroSection';
 import '../styles.css';
 import './App.css';
 import { useEffect } from 'react';
@@ -38,17 +39,7 @@ function Home() {
         <span className="progress-number">3</span>
       </div>
 
-      <section className="hero-section">
-        <div style={{
-          width: '100%',
-          margin: '0 auto',
-          padding: '0 20px',
-          boxSizing: 'border-box'
-        }}>
-          <h1 className="hero-title">I am THE, Chris Attorri</h1>
-          <p className="hero-subtitle">Today, you are the lucky recipient of my life story.</p>
-        </div>
-      </section>
+      <HeroSection title={['I am THE, Chris Attorri'.split(' '), {'I':'gradient', 'am':'gradient', 'THE,':'gradient', 'Chris':'gradient', 'Attorri':'gradient'}]} subtitle="Today, you are the lucky recipient of my life story." />
 
       <div className="feature-grid">
         <div className="feature-item">
