@@ -1,9 +1,8 @@
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, Response, render_template_string
 from ultralytics import YOLO
 import cv2
 import numpy as np
 import logging
-import base64
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -13,34 +12,47 @@ app = Flask(__name__)
 
 class Detection:
     def __init__(self):
+        logger.info("Initializing YOLO model...")
         self.model = YOLO("yolov8n.pt")
+        self.device = 'cuda' if cv2.cuda.getCudaEnabledDeviceCount() > 0 else 'cpu'
+        logger.info(f"Using device: {self.device}")
+        self.model.to(self.device)
+        self.cap = None
+        # Color mapping for different classes (BGR format)
+        self.colors = {
+            'person': (0, 255, 0),    # Green
+            'car': (255, 0, 0),       # Blue
+            'dog': (0, 165, 255),     # Orange
+            'cat': (255, 0, 255),     # Magenta
+            'bird': (255, 255, 0),    # Cyan
+            'laptop': (128, 0, 255),  # Purple
+            'cell phone': (0, 255, 255),  # Yellow
+        }
+        self.default_color = (0, 0, 255)  # Red for any other class
         
-    def draw_box(self, image, box, label, color=(0, 0, 255)):
-        # Extract coordinates
-        x1, y1, x2, y2 = map(int, box)
-        
-        # Draw thick red box
-        cv2.rectangle(image, (x1, y1), (x2, y2), color, 3)
-        
-        # Add filled background for text
-        text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
-        cv2.rectangle(image, (x1, y1 - 25), (x1 + text_size[0], y1), color, -1)
-        
-        # Add white text
-        cv2.putText(image, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
-        
-    def detect_from_image(self, image, conf=0.25):
+    def draw_box(self, image, box, label, class_name):
         try:
-            if image is None:
-                return None, []
-            
-            # Ensure image is in correct format
-            if len(image.shape) == 2:  # If grayscale
-                image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-            
+            x1, y1, x2, y2 = map(int, box)
+            # Get color for class, default to red if not in mapping
+            color = self.colors.get(class_name.lower(), self.default_color)
+            # Draw thick box
+            cv2.rectangle(image, (x1, y1), (x2, y2), color, 3)
+            # Add filled background for text
+            text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+            cv2.rectangle(image, (x1, y1 - 25), (x1 + text_size[0], y1), color, -1)
+            # Add white text
+            cv2.putText(image, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+            logger.debug(f"Drew {class_name} box at coordinates: ({x1}, {y1}, {x2}, {y2})")
+        except Exception as e:
+            logger.error(f"Error drawing box: {e}")
+
+    def process_frame(self, frame):
+        if frame is None:
+            return None
+
+        try:
             # Make predictions
-            results = self.model.predict(image, conf=conf)[0]
-            detections = []
+            results = self.model.predict(frame, conf=0.25, verbose=False)[0]
             
             # Process results and draw boxes
             for box in results.boxes:
@@ -49,58 +61,53 @@ class Detection:
                 class_name = results.names[class_id]
                 bbox = box.xyxy[0].tolist()  # Get box coordinates
                 
-                # Add to detections list
-                detections.append({
-                    'class': class_name,
-                    'confidence': round(confidence * 100, 1),
-                    'bbox': bbox
-                })
-                
-                # Force draw box on image
+                # Draw box and label
                 label = f'{class_name} {confidence:.1%}'
-                self.draw_box(image, bbox, label)
-                
-                # Log detection for debugging
-                logger.info(f"Drew box for {class_name} at {bbox}")
+                self.draw_box(frame, bbox, label, class_name)
+                logger.info(f"Detected {class_name} with confidence {confidence:.1%}")
             
-            return image, detections
+            return frame
             
         except Exception as e:
-            logger.error(f"Detection error: {e}")
-            return image, []
+            logger.error(f"Error processing frame: {e}")
+            return frame
+
+    def generate_frames(self):
+        logger.info("Starting frame generation...")
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.cap.set(cv2.CAP_PROP_FPS, 30)
+
+        while True:
+            success, frame = self.cap.read()
+            if not success:
+                logger.error("Failed to read frame")
+                break
+            
+            # Process frame with detections
+            processed_frame = self.process_frame(frame)
+            
+            try:
+                # Encode frame to JPEG
+                _, buffer = cv2.imencode('.jpg', processed_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                frame_bytes = buffer.tobytes()
+                
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            except Exception as e:
+                logger.error(f"Error encoding frame: {e}")
+                break
+
+        if self.cap:
+            self.cap.release()
 
 # Initialize detector
 detector = Detection()
 
-@app.route('/detect', methods=['POST'])
-def detect():
-    try:
-        # Get the image data from the request
-        image_data = request.json['image'].split(',')[1]
-        nparr = np.frombuffer(base64.b64decode(image_data), np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
-        # Process the image
-        processed_image, detections = detector.detect_from_image(image)
-        
-        # Ensure we're getting detections
-        logger.info(f"Number of detections: {len(detections)}")
-        
-        # Convert back to base64
-        _, buffer = cv2.imencode('.jpg', processed_image)
-        image_base64 = base64.b64encode(buffer).decode('utf-8')
-        
-        return jsonify({
-            'image': f'data:image/jpeg;base64,{image_base64}',
-            'detections': detections
-        })
-    except Exception as e:
-        logger.error(f"Detection error: {e}")
-        return jsonify({'error': str(e)}), 500
-
 @app.route('/')
 def home():
-    return """
+    return render_template_string("""
     <!DOCTYPE html>
     <html>
         <head>
@@ -129,168 +136,29 @@ def home():
                     position: relative;
                     background-color: black;
                 }
-                #videoElement, #canvasElement {
+                #video-feed {
                     width: 100%;
                     height: 100%;
                     object-fit: contain;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                }
-                #canvasElement {
-                    z-index: 2;
-                }
-                #status {
-                    margin: 10px 0;
-                    padding: 10px;
-                    border-radius: 5px;
-                }
-                .success { background-color: #dff0d8; color: #3c763d; }
-                .error { background-color: #f2dede; color: #a94442; }
-                #detections {
-                    margin: 20px auto;
-                    padding: 10px;
-                    max-width: 640px;
-                    text-align: left;
-                    background-color: #f8f9fa;
-                    border-radius: 5px;
-                }
-                .detection-item {
-                    margin: 5px 0;
-                    padding: 5px 10px;
-                    background-color: #e9ecef;
-                    border-radius: 3px;
-                    display: inline-block;
-                    margin-right: 5px;
-                }
-                .confidence {
-                    color: #666;
-                    font-size: 0.9em;
                 }
             </style>
         </head>
         <body>
             <div class="container">
                 <h1>📸 Live YOLO Detection</h1>
-                <div id="status"></div>
                 <div class="video-container">
-                    <video id="videoElement" autoplay playsinline></video>
-                    <canvas id="canvasElement"></canvas>
-                </div>
-                <div id="detections">
-                    <h3>Detected Objects</h3>
-                    <div id="detectionsList"></div>
+                    <img id="video-feed" src="{{ url_for('video_feed') }}" />
                 </div>
             </div>
-            
-            <script>
-                const video = document.getElementById('videoElement');
-                const canvas = document.getElementById('canvasElement');
-                const ctx = canvas.getContext('2d');
-                const status = document.getElementById('status');
-                const detectionsList = document.getElementById('detectionsList');
-                let isProcessing = false;
-                
-                async function startCamera() {
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ 
-                            video: { 
-                                width: { ideal: 640 },
-                                height: { ideal: 480 }
-                            } 
-                        });
-                        
-                        video.srcObject = stream;
-                        status.className = 'success';
-                        status.textContent = '✅ Camera initialized successfully';
-                        
-                        // Set canvas size
-                        canvas.width = 640;
-                        canvas.height = 480;
-                        
-                        // Start detection loop
-                        detectObjects();
-                        
-                    } catch (err) {
-                        status.className = 'error';
-                        status.textContent = '❌ Error accessing camera: ' + err.message;
-                        console.error('Camera error:', err);
-                    }
-                }
-                
-                function updateDetectionsList(detections) {
-                    detectionsList.innerHTML = detections.map(det => `
-                        <div class="detection-item">
-                            ${det.class} <span class="confidence">${det.confidence}%</span>
-                        </div>
-                    `).join('');
-                }
-                
-                async function detectObjects() {
-                    if (!isProcessing) {
-                        isProcessing = true;
-                        
-                        try {
-                            // Draw current frame to canvas
-                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                            
-                            // Get frame data
-                            const imageData = canvas.toDataURL('image/jpeg', 0.8);
-                            
-                            // Send to server for detection
-                            const response = await fetch('/detect', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    image: imageData
-                                })
-                            });
-                            
-                            const data = await response.json();
-                            
-                            if (data.error) {
-                                throw new Error(data.error);
-                            }
-                            
-                            // Update detections list
-                            updateDetectionsList(data.detections);
-                            
-                            // Draw detected frame
-                            const img = new Image();
-                            img.onload = () => {
-                                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                ctx.drawImage(img, 0, 0);
-                                isProcessing = false;
-                                requestAnimationFrame(detectObjects);
-                            };
-                            img.src = data.image;
-                            
-                        } catch (err) {
-                            console.error('Detection error:', err);
-                            isProcessing = false;
-                            requestAnimationFrame(detectObjects);
-                        }
-                    } else {
-                        requestAnimationFrame(detectObjects);
-                    }
-                }
-                
-                // Start camera when page loads
-                startCamera();
-                
-                // Clean up on page unload
-                window.onbeforeunload = () => {
-                    const stream = video.srcObject;
-                    if (stream) {
-                        stream.getTracks().forEach(track => track.stop());
-                    }
-                };
-            </script>
         </body>
     </html>
-    """
-    
+    """)
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(detector.generate_frames(),
+                   mimetype='multipart/x-mixed-replace; boundary=frame')
+
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    logger.info("Starting Flask server...")
+    app.run(host='0.0.0.0', port=5001, debug=True)
