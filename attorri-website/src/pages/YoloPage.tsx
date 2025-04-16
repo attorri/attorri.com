@@ -128,7 +128,7 @@ export default function YoloPage() {
     <Container>
       <Title>Real-Time Object Detection</Title>
       <Description>
-        Experience live object detection powered by YOLOv8. Point your camera at any object to see instant recognition in action.
+        Powered by YOLOv8.
       </Description>
 
       {!hasPermission ? (
