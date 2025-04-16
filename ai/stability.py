@@ -6,11 +6,6 @@ load_dotenv(override=True)
 
 api_key = os.getenv('STABILITY_API_KEY')
 
-def get_api_key():
-    # Verify that the new API key is being used
-    print("API Key:")
-    print(api_key)
-
 
 def call_stability_api(prompt):
     response = requests.post(
