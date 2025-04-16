@@ -6,19 +6,25 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 40px 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  background-color: #0c1c2c;
-  min-height: 100vh;
-  color: white;
+`;
+
+const Title = styled.h1`
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 `;
 
 const VideoContainer = styled.div`
   width: 100%;
   height: 600px;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  background-color: #1b2b3d;
+  background-color: #000;
   position: relative;
   margin: 20px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const VideoFeed = styled.img<{ loaded: boolean }>`
@@ -35,6 +41,7 @@ const LoadingOverlay = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
+  color: white;
 `;
 
 const Spinner = styled.div`
@@ -44,6 +51,7 @@ const Spinner = styled.div`
   border-radius: 50%;
   border-top-color: #0069ff;
   animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
   
   @keyframes spin {
     to { transform: rotate(360deg); }
@@ -51,11 +59,13 @@ const Spinner = styled.div`
 `;
 
 const PermissionPanel = styled.div`
-  background: #1b2b3d;
+  background: white;
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: 12px;
   text-align: center;
   margin: 2rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
 `;
 
 const Button = styled.button`
@@ -66,10 +76,12 @@ const Button = styled.button`
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: transform 0.2s;
+  margin: 1rem 0;
+  display: inline-block;
   
   &:hover {
-    background: #005ce6;
+    transform: translateY(-2px);
   }
 `;
 
@@ -79,6 +91,13 @@ const ErrorMessage = styled.div`
   background: rgba(255, 68, 68, 0.1);
   border-radius: 8px;
   margin: 1rem 0;
+`;
+
+const Description = styled.p`
+  color: #667;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
 `;
 
 export default function YoloPage() {
@@ -107,16 +126,18 @@ export default function YoloPage() {
 
   return (
     <Container>
-      <h1>Real-Time Object Detection</h1>
-      <p>Ensure Flask server is running on port 5001</p>
+      <Title>Real-Time Object Detection</Title>
+      <Description>
+        Experience live object detection powered by YOLOv8. Point your camera at any object to see instant recognition in action.
+      </Description>
 
       {!hasPermission ? (
         <PermissionPanel>
-          <h3>Camera Access Required</h3>
-          <p>You need to grant camera permissions to use this feature:</p>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Camera Access Required</h3>
+          <p style={{ marginBottom: '1.5rem' }}>To start detecting objects, please enable your camera:</p>
           <Button onClick={requestAccess}>Enable Camera Access</Button>
           {error && <ErrorMessage>{error}</ErrorMessage>}
-          <p style={{ marginTop: '1rem', color: '#5c7999' }}>
+          <p style={{ marginTop: '1rem', color: '#667', fontSize: '0.9rem' }}>
             Note: On macOS, you may need to grant permissions to both your browser and terminal
           </p>
         </PermissionPanel>
@@ -125,7 +146,7 @@ export default function YoloPage() {
           {isLoading && (
             <LoadingOverlay>
               <Spinner />
-              <p>Connecting to local detection server...</p>
+              <p>Initializing detection...</p>
             </LoadingOverlay>
           )}
           

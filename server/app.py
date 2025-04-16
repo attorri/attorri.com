@@ -6,6 +6,7 @@ import numpy as np
 import logging
 import sys
 import os
+import atexit
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -43,6 +44,11 @@ class Detection:
             logger.error(f"Initialization failed: {e}")
             sys.exit(1)
 
+    def cleanup(self):
+        if self.cap and self.cap.isOpened():
+            self.cap.release()
+            logger.info("Camera released during cleanup")
+
     def draw_box(self, image, box, label, class_name):
         try:
             x1, y1, x2, y2 = map(int, box)
@@ -69,33 +75,49 @@ class Detection:
             logger.error(f"Processing error: {e}")
             return frame
 
-    def generate_frames(self):
-        logger.info("Starting video capture...")
-        try:
-            for idx, api in CAMERA_CONFIG:
+    def initialize_camera(self):
+        if self.cap and self.cap.isOpened():
+            self.cap.release()
+        
+        for idx, api in CAMERA_CONFIG:
+            try:
                 self.cap = cv2.VideoCapture(idx, api)
                 if self.cap.isOpened():
                     logger.info(f"Camera {idx} opened with API {api}")
                     self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
                     self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
                     self.cap.set(cv2.CAP_PROP_FPS, 30)
-                    break
-            else:
-                logger.error("No camera found")
+                    return True
+            except Exception as e:
+                logger.error(f"Failed to open camera {idx} with API {api}: {e}")
+                continue
+        
+        logger.error("No camera found")
+        return False
+
+    def generate_frames(self):
+        logger.info("Starting video capture...")
+        try:
+            if not self.initialize_camera():
                 return
 
             while True:
+                if not self.cap.isOpened():
+                    if not self.initialize_camera():
+                        break
+                
                 success, frame = self.cap.read()
                 if not success:
                     logger.warning("Frame read failed")
-                    break
+                    if not self.initialize_camera():
+                        break
+                    continue
+                
                 yield self._frame_to_bytes(self.process_frame(frame))
         except Exception as e:
             logger.error(f"Video error: {e}")
         finally:
-            if self.cap:
-                self.cap.release()
-                logger.info("Camera released")
+            self.cleanup()
 
     def _frame_to_bytes(self, frame):
         try:
@@ -106,6 +128,7 @@ class Detection:
             return b''
 
 detector = Detection()
+atexit.register(detector.cleanup)
 
 @app.route('/')
 def home():
