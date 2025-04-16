@@ -1,10 +1,14 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles.css';
 import gptRobots from '../assets/gpt_robots_2.png';
 import HeroSection from '../HeroSection';
 import ProductCard from '../ProductCard';
 import StatCard from '../StatCard';
+
 const AIPage: React.FC = () => {
+    const navigate = useNavigate();
+
     useEffect(() => {
         // Initialize GSAP animations
         const gsap = (window as any).gsap;
@@ -25,6 +29,10 @@ const AIPage: React.FC = () => {
             });
         }
     }, []);
+
+    const handleYoloClick = () => {
+        navigate('/yolo');
+    };
 
     return (
         <div className="ai-page-container" style={{
@@ -149,7 +157,9 @@ const AIPage: React.FC = () => {
                         marginBottom: '40px'
                     }}>Basic AI Applications</h2>
                     <div className="stats-grid">
-                        <StatCard value="YOLO" title="Object Recognition" />
+                        <div onClick={handleYoloClick} style={{ cursor: 'pointer' }}>
+                            <StatCard value="YOLO" title="Object Recognition" />
+                        </div>
                         <StatCard value="CNN" title="Image Generation" />
                         <StatCard value="LLMs" title="Optimal Usage" />
                         <StatCard value="$10T+" title="Business Opportunities" />
