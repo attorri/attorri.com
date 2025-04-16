@@ -91,3 +91,9 @@ attorri.com/
 - The React development server runs on port 5173
 - Camera initialization may take a few seconds
 - First YOLO model load may take a moment 
+
+## Command I ran 
+ - CD into repo (full path)
+ - chmod +x start.sh
+mkdir -p server
+./start.sh
