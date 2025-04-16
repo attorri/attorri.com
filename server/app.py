@@ -3,6 +3,7 @@ from ultralytics import YOLO
 import cv2
 import numpy as np
 import logging
+import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -74,33 +75,61 @@ class Detection:
 
     def generate_frames(self):
         logger.info("Starting frame generation...")
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        self.cap.set(cv2.CAP_PROP_FPS, 30)
+        try:
+            # For macOS, explicitly try different camera indices and backends
+            camera_options = [
+                (0, cv2.CAP_ANY),           # Try default first
+                (0, cv2.CAP_AVFOUNDATION),  # Try AVFoundation
+                (1, cv2.CAP_AVFOUNDATION),  # Try external camera
+                (0, cv2.CAP_MSMF),          # Try Media Foundation
+            ]
 
-        while True:
-            success, frame = self.cap.read()
-            if not success:
-                logger.error("Failed to read frame")
-                break
+            for idx, api in camera_options:
+                logger.info(f"Attempting to open camera with index {idx} and API {api}")
+                self.cap = cv2.VideoCapture(idx, api)
+                if self.cap is not None and self.cap.isOpened():
+                    logger.info(f"Successfully opened camera with index {idx} and API {api}")
+                    break
             
-            # Process frame with detections
-            processed_frame = self.process_frame(frame)
+            if not self.cap.isOpened():
+                logger.error("Could not open camera with any available backend")
+                return
+
+            # Set camera properties
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            self.cap.set(cv2.CAP_PROP_FPS, 30)
             
-            try:
-                # Encode frame to JPEG
-                _, buffer = cv2.imencode('.jpg', processed_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-                frame_bytes = buffer.tobytes()
+            logger.info("Camera initialized successfully")
+            
+            while True:
+                success, frame = self.cap.read()
+                if not success:
+                    logger.error("Failed to read frame")
+                    break
                 
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-            except Exception as e:
-                logger.error(f"Error encoding frame: {e}")
-                break
+                # Process frame with detections
+                processed_frame = self.process_frame(frame)
+                
+                try:
+                    # Encode frame to JPEG
+                    _, buffer = cv2.imencode('.jpg', processed_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                    frame_bytes = buffer.tobytes()
+                    
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+                except Exception as e:
+                    logger.error(f"Error encoding frame: {e}")
+                    break
 
-        if self.cap:
-            self.cap.release()
+        except Exception as e:
+            logger.error(f"Camera initialization error: {e}")
+            return
+
+        finally:
+            if hasattr(self, 'cap') and self.cap is not None:
+                self.cap.release()
+                logger.info("Camera released")
 
 # Initialize detector
 detector = Detection()
@@ -111,45 +140,245 @@ def home():
     <!DOCTYPE html>
     <html>
         <head>
-            <title>YOLO Object Detection</title>
+            <title>Real-Time Object Detection</title>
             <style>
+                :root {
+                    --primary-blue: #0069ff;
+                    --bg-dark: #0c1c2c;
+                    --text-light: #ffffff;
+                    --text-secondary: #5c7999;
+                    --border-radius: 8px;
+                    --card-bg: #1b2b3d;
+                }
+                
                 body { 
-                    font-family: Arial, sans-serif; 
-                    margin: 20px; 
-                    text-align: center;
-                    background-color: #f5f5f5;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: var(--bg-dark);
+                    color: var(--text-light);
+                    min-height: 100vh;
+                    line-height: 1.5;
                 }
+                
                 .container {
-                    max-width: 800px;
-                    margin: 40px auto;
-                    padding: 20px;
-                    background-color: white;
-                    border-radius: 10px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 40px 20px;
                 }
+                
+                .header {
+                    margin-bottom: 32px;
+                }
+                
+                h1 {
+                    font-size: 36px;
+                    font-weight: 600;
+                    margin: 0 0 8px 0;
+                    color: var(--text-light);
+                }
+                
+                .subtitle {
+                    font-size: 16px;
+                    color: var(--text-secondary);
+                    margin: 0;
+                }
+                
+                .main-content {
+                    background: var(--card-bg);
+                    border-radius: var(--border-radius);
+                    padding: 24px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+                
                 .video-container {
-                    margin: 20px auto;
-                    width: 640px;
-                    height: 480px;
-                    border-radius: 8px;
+                    width: 100%;
+                    height: 600px;
+                    border-radius: var(--border-radius);
                     overflow: hidden;
+                    background-color: var(--bg-dark);
                     position: relative;
-                    background-color: black;
+                    margin: 20px 0;
                 }
+                
                 #video-feed {
                     width: 100%;
                     height: 100%;
                     object-fit: contain;
+                    background-color: var(--bg-dark);
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                }
+
+                #video-feed.loaded {
+                    opacity: 1;
+                }
+                
+                .loading-container {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    text-align: center;
+                }
+
+                .loading-spinner {
+                    width: 40px;
+                    height: 40px;
+                    border: 3px solid var(--card-bg);
+                    border-radius: 50%;
+                    border-top-color: var(--primary-blue);
+                    animation: spin 1s linear infinite;
+                    margin-bottom: 16px;
+                }
+
+                .loading-text {
+                    color: var(--text-secondary);
+                    font-size: 14px;
+                }
+
+                @keyframes spin {
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+                
+                .permission-button {
+                    background-color: var(--primary-blue);
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: var(--border-radius);
+                    font-size: 14px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .permission-button:hover {
+                    background-color: #005ae0;
+                }
+                
+                .instructions {
+                    background: var(--bg-dark);
+                    border-radius: var(--border-radius);
+                    padding: 24px;
+                    margin: 24px 0;
+                }
+                
+                .instructions h3 {
+                    margin: 0 0 16px 0;
+                    color: var(--text-light);
+                    font-size: 18px;
+                    font-weight: 500;
+                }
+                
+                .instructions ol {
+                    margin: 0;
+                    padding-left: 20px;
+                    color: var(--text-secondary);
+                }
+                
+                .instructions li {
+                    margin: 8px 0;
+                }
+                
+                #error-message {
+                    color: #ff4444;
+                    margin-top: 16px;
+                    display: none;
+                    padding: 12px;
+                    border-radius: var(--border-radius);
+                    background: rgba(255, 68, 68, 0.1);
+                    font-size: 14px;
+                }
+                
+                @media (max-width: 768px) {
+                    .container {
+                        padding: 20px;
+                    }
+                    
+                    h1 {
+                        font-size: 28px;
+                    }
+
+                    .video-container {
+                        height: 400px;
+                    }
                 }
             </style>
         </head>
         <body>
             <div class="container">
-                <h1>📸 Live YOLO Detection</h1>
-                <div class="video-container">
-                    <img id="video-feed" src="{{ url_for('video_feed') }}" />
+                <div class="header">
+                    <h1>Real-Time Object Detection</h1>
+                    <p class="subtitle">Powered by YOLO v8 Neural Network</p>
+                </div>
+                
+                <div class="main-content">
+                    <div id="permission-container">
+                        <div class="instructions">
+                            <h3>Camera Access Required</h3>
+                            <ol>
+                                <li>Click the button below to enable camera access</li>
+                                <li>Allow camera permissions when prompted by your browser</li>
+                                <li>For macOS users, grant camera access in System Settings if requested</li>
+                            </ol>
+                        </div>
+                        <button id="request-permission" class="permission-button">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19 12H5M12 19V5"/>
+                            </svg>
+                            Enable Camera
+                        </button>
+                        <div id="error-message"></div>
+                    </div>
+                    <div class="video-container" id="video-container">
+                        <div class="loading-container" id="loading-container">
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text">Initializing camera...</div>
+                        </div>
+                        <img id="video-feed" src="{{ url_for('video_feed') }}" />
+                    </div>
                 </div>
             </div>
+            <script>
+                document.getElementById('request-permission').addEventListener('click', async () => {
+                    const errorMessage = document.getElementById('error-message');
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        document.getElementById('permission-container').style.display = 'none';
+                        document.getElementById('video-container').style.display = 'block';
+                        
+                        const videoFeed = document.getElementById('video-feed');
+                        const loadingContainer = document.getElementById('loading-container');
+                        
+                        videoFeed.onload = () => {
+                            loadingContainer.style.display = 'none';
+                            videoFeed.classList.add('loaded');
+                        };
+                        
+                        videoFeed.src = "{{ url_for('video_feed') }}";
+                        
+                        videoFeed.onerror = () => {
+                            errorMessage.textContent = 'Error accessing camera. Please check your camera permissions in system settings.';
+                            errorMessage.style.display = 'block';
+                            document.getElementById('permission-container').style.display = 'block';
+                            document.getElementById('video-container').style.display = 'none';
+                        };
+                    } catch (err) {
+                        console.error('Error accessing camera:', err);
+                        errorMessage.textContent = 'Could not access camera. Please ensure camera permissions are granted in both browser and system settings.';
+                        errorMessage.style.display = 'block';
+                    }
+                });
+            </script>
         </body>
     </html>
     """)
@@ -161,4 +390,4 @@ def video_feed():
 
 if __name__ == '__main__':
     logger.info("Starting Flask server...")
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=False)
