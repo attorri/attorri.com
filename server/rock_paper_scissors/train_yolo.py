@@ -9,18 +9,29 @@ logger = logging.getLogger(__name__)
 def train_model():
     try:
         # Load a model
-        logger.info("Loading base model...")
-        model = YOLO('yolov8n.pt')
+        logger.info("Loading base classification model...")
+        model = YOLO('yolov8n-cls.pt')  # Load the base classification model
 
-        # Train the model with minimal settings
+        # Train the model
         logger.info("Starting training...")
         model.train(
-            data='data.yaml',
-            epochs=5,           # Very few epochs
-            imgsz=320,         # Smaller image size
-            batch=4,           # Small batch size
+            data='.',  # Current directory containing train/val folders
+            epochs=50,
+            imgsz=224,
+            batch=32,
             device='cpu',
-            verbose=True
+            verbose=True,
+            patience=20,
+            save=True,
+            plots=True,
+            augment=True,
+            mixup=0.1,
+            copy_paste=0.1,
+            degrees=10.0,
+            translate=0.1,
+            scale=0.5,
+            fliplr=0.5,
+            mosaic=0.5
         )
 
     except Exception as e:

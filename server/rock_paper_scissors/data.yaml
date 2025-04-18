@@ -1,6 +1,8 @@
-path: /Users/christianattorri/Documents/GitHub/attorri.com/server/rock_paper_scissors
-train: train_yolo
-val: train_yolo
-test: train_yolo
-nc: 3
-names: ['rock', 'paper', 'scissors'] 
+path: /Users/christianattorri/Documents/GitHub/attorri.com/server/rock_paper_scissors  # dataset root dir
+train: train/images  # train images (relative to 'path')
+val: val/images      # val images (relative to 'path')
+test: test/images    # test images (optional)
+
+# Classes
+nc: 3  # number of classes
+names: ['rock', 'paper', 'scissors']  # class names 
