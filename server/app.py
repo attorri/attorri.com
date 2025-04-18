@@ -16,7 +16,9 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for cross-origin requests
 
 # Configuration
-DETECTOR_PATH = os.path.join(os.path.dirname(__file__), "runs/detect/train/weights/best.pt")  # Path to our trained RPS model
+RPS_MODEL_PATH = os.path.join(os.path.dirname(__file__), "runs/detect/train/weights/best.pt")
+FALLBACK_MODEL_PATH = os.path.join(os.path.dirname(__file__), "yolov8n-cls.pt")
+
 CAMERA_CONFIG = [
     (0, cv2.CAP_ANY),
     (0, cv2.CAP_AVFOUNDATION),
@@ -28,7 +30,17 @@ class Detection:
     def __init__(self):
         logger.info("Initializing model...")
         try:
-            self.model = YOLO(DETECTOR_PATH)
+            # Try to load the RPS model first
+            if os.path.exists(RPS_MODEL_PATH):
+                logger.info("Loading RPS model...")
+                self.model = YOLO(RPS_MODEL_PATH)
+                self.is_rps_model = True
+            else:
+                logger.warning(f"RPS model not found at {RPS_MODEL_PATH}")
+                logger.info("Loading classification model as fallback...")
+                self.model = YOLO(FALLBACK_MODEL_PATH)
+                self.is_rps_model = False
+            
             self.device = 'cuda' if cv2.cuda.getCudaEnabledDeviceCount() > 0 else 'cpu'
             logger.info(f"Using device: {self.device}")
             self.model.to(self.device)
@@ -41,7 +53,7 @@ class Detection:
             }
             self.default_color = (128, 128, 128)  # Gray for other objects
             
-            logger.info(f"Available classes: {self.model.names}")
+            logger.info(f"Model loaded successfully. Available classes: {self.model.names}")
             
         except Exception as e:
             logger.error(f"Initialization failed: {e}")
@@ -56,10 +68,10 @@ class Detection:
         try:
             x1, y1, x2, y2 = map(int, box)
             color = self.colors.get(class_name.lower(), self.default_color)
-            cv2.rectangle(image, (x1, y1), (x2, y2), color, 3)
-            text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+            cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+            text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)[0]
             cv2.rectangle(image, (x1, y1 - 25), (x1 + text_size[0], y1), color, -1)
-            cv2.putText(image, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+            cv2.putText(image, label, (x1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         except Exception as e:
             logger.error(f"Drawing error: {e}")
 
@@ -67,22 +79,35 @@ class Detection:
         if frame is None:
             return None
         try:
-            # Detect objects
-            results = self.model.predict(frame, conf=0.3, verbose=False)[0]
-            
-            # Process each detection
-            for box in results.boxes:
-                confidence = float(box.conf[0])
-                class_id = int(box.cls[0])
-                class_name = results.names[class_id]
-                
-                # Draw the detection
-                self.draw_box(
+            # Process based on model type
+            if self.is_rps_model:
+                # RPS detection
+                results = self.model.predict(
                     frame,
-                    box.xyxy[0].tolist(),
-                    f'{class_name} {confidence:.1%}',
-                    class_name
-                )
+                    conf=0.3,  # Lower threshold for RPS detection
+                    iou=0.45,
+                    verbose=False
+                )[0]
+                
+                # Process each detection
+                for box in results.boxes:
+                    confidence = float(box.conf[0])
+                    class_id = int(box.cls[0])
+                    class_name = results.names[class_id]
+                    
+                    # Draw the detection
+                    self.draw_box(
+                        frame,
+                        box.xyxy[0].tolist(),
+                        f'{class_name} {confidence:.1%}',
+                        class_name
+                    )
+            else:
+                # Show warning about missing RPS model
+                cv2.putText(frame, "RPS model not loaded - waiting for training",
+                          (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                cv2.putText(frame, "Please wait for training to complete",
+                          (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             
             return frame
             
@@ -151,7 +176,7 @@ def home():
     return render_template_string("""
     <!DOCTYPE html>
     <html><body>
-        <h1>Flask Detection Server</h1>
+        <h1>Rock Paper Scissors Detection</h1>
         <p>Access via React app at <a href="http://localhost:5173/yolo">http://localhost:5173/yolo</a></p>
     </body></html>
     """)
