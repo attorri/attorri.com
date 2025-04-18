@@ -1,9 +1,8 @@
-path: /Users/christianattorri/Documents/GitHub/attorri.com/server/rock_paper_scissors
-train: train/images
-val: train/images
-test: train/images
-nc: 3
-names: ['rock', 'paper', 'scissors']
+path: /Users/christianattorri/Documents/GitHub/attorri.com/server/rock_paper_scissors  # dataset root dir
+train: train/images  # train images (relative to 'path')
+val: val/images      # val images (relative to 'path')
+test: test/images    # test images (optional)
 
-# Download script/URL (optional)
-download: https://universe.roboflow.com/ds/YOUR_DATASET_URL 
+# Classes
+nc: 3  # number of classes
+names: ['rock', 'paper', 'scissors']  # class names 

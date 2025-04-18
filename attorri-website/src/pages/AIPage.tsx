@@ -34,6 +34,10 @@ const AIPage: React.FC = () => {
         navigate('/yolo');
     };
 
+    const handleStabilityClick = () => {
+        navigate('/stability');
+    };
+
     return (
         <div className="ai-page-container" style={{
             display: 'flex',
@@ -160,7 +164,9 @@ const AIPage: React.FC = () => {
                         <div onClick={handleYoloClick} style={{ cursor: 'pointer' }}>
                             <StatCard value="YOLO" title="Object Recognition" />
                         </div>
-                        <StatCard value="CNN" title="Image Generation" />
+                        <div onClick={handleStabilityClick} style={{ cursor: 'pointer' }}>
+                            <StatCard value="Stability" title="Image Generation" />
+                        </div>
                         <StatCard value="LLMs" title="Optimal Usage" />
                         <StatCard value="$10T+" title="Business Opportunities" />
                     </div>

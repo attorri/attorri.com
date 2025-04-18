@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SectionBox from './SectionBox';
 import AIPage from './pages/AIPage';
 import YoloPage from './pages/YoloPage';
+import StabilityAI from './pages/StabilityAI';
 import HeroSection from './HeroSection';
 import '../styles.css';
 import './App.css';
@@ -82,6 +83,7 @@ function App() {
       <Routes>
         <Route path="/ai" element={<AIPage />} />
         <Route path="/yolo" element={<YoloPage />} />
+        <Route path="/stability" element={<StabilityAI />} />
         <Route path="/" element={<Home />} />
       </Routes>
     </Router>

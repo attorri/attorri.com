@@ -9,32 +9,30 @@ logger = logging.getLogger(__name__)
 def train_model():
     try:
         # Load a model
-        logger.info("Loading base model...")
-        base_model_path = os.path.join('..', 'yolov8n.pt')
-        model = YOLO(base_model_path)  # load a pretrained DETECTION model
+        logger.info("Loading base classification model...")
+        model = YOLO('yolov8n-cls.pt')  # Load the base classification model
 
         # Train the model
         logger.info("Starting training...")
-        results = model.train(
-            data='data.yaml',  # Use local data.yaml since we're in the same directory
+        model.train(
+            data='.',  # Current directory containing train/val folders
             epochs=50,
-            imgsz=640,
-            patience=10,
-            batch=16,
+            imgsz=224,
+            batch=32,
             device='cpu',
-            verbose=True
+            verbose=True,
+            patience=20,
+            save=True,
+            plots=True,
+            augment=True,
+            mixup=0.1,
+            copy_paste=0.1,
+            degrees=10.0,
+            translate=0.1,
+            scale=0.5,
+            fliplr=0.5,
+            mosaic=0.5
         )
-
-        # Validate the model
-        logger.info("Validating model...")
-        metrics = model.val()
-        logger.info(f"\nValidation Results:")
-        logger.info(f"mAP50: {metrics.box.map50:.3f}")
-        logger.info(f"mAP50-95: {metrics.box.map:.3f}")
-
-        # Export the model
-        logger.info("Exporting model...")
-        model.export(format='onnx')
 
     except Exception as e:
         logger.error(f"Training failed: {e}")
