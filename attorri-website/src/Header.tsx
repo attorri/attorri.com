@@ -1,5 +1,32 @@
 import '../styles.css';
 
+interface HeaderComponentProps {
+    _link: string;
+    _text: string;
+    _style? :string;
+}
+
+function HeaderComponent({_link, _text, _style}: HeaderComponentProps) {
+    if (_style == 'main'){
+        return <a href={`${_link}`} className="logo" style={{
+            color: 'var(--heading-color)',
+            textDecoration: 'none',
+            fontWeight: 500
+        }}>
+            {_text}
+        </a>
+    }
+    return (
+        <a href={`${_link}`} className="nav-link" style={{
+            color: 'var(--text-color)',
+            textDecoration: 'none',
+            fontWeight: 500,
+            transition: 'color 0.2s ease'
+        }}>
+            {_text}
+        </a>
+    )
+}
 function Header() {
     return (
         <header className="top-nav" style={{
@@ -24,38 +51,17 @@ function Header() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '0 20px'
+                padding: '0 20px',
+                height: '100%'
             }}>
-                <a href="/" className="logo" style={{
-                    color: 'var(--heading-color)',
-                    textDecoration: 'none',
-                    fontWeight: 500
-                }}>
-                    Chris Attorri
-                </a>
+                <HeaderComponent _link="/" _text="Chris Attorri" _style="main" />
                 <nav className="nav-links" style={{
                     display: 'flex',
                     gap: '24px',
                     alignItems: 'center'
                 }}>
-                    <a href="#" className="nav-link" style={{
-                        color: 'var(--text-color)',
-                        textDecoration: 'none',
-                        fontWeight: 500,
-                        transition: 'color 0.2s ease'
-                    }}>Documentation</a>
-                    <a href="#" className="nav-link" style={{
-                        color: 'var(--text-color)',
-                        textDecoration: 'none',
-                        fontWeight: 500,
-                        transition: 'color 0.2s ease'
-                    }}>About</a>
-                    <a href="#" className="nav-link" style={{
-                        color: 'var(--text-color)',
-                        textDecoration: 'none',
-                        fontWeight: 500,
-                        transition: 'color 0.2s ease'
-                    }}>Blog</a>
+                    <HeaderComponent _link="/" _text="About" />
+                    <HeaderComponent _link="/ai" _text="AI" />
                     <a href="#" className="button-primary" style={{
                         background: 'var(--gradient-blue)',
                         color: 'white',
