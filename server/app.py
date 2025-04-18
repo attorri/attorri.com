@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for cross-origin requests
 
 # Configuration
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "yolov8n.pt")
+DETECTOR_PATH = os.path.join(os.path.dirname(__file__), "runs/detect/train/weights/best.pt")  # Path to our trained RPS model
 CAMERA_CONFIG = [
     (0, cv2.CAP_ANY),
     (0, cv2.CAP_AVFOUNDATION),
@@ -26,20 +26,23 @@ CAMERA_CONFIG = [
 
 class Detection:
     def __init__(self):
-        logger.info("Initializing YOLO model...")
+        logger.info("Initializing model...")
         try:
-            self.model = YOLO(MODEL_PATH)
+            self.model = YOLO(DETECTOR_PATH)
             self.device = 'cuda' if cv2.cuda.getCudaEnabledDeviceCount() > 0 else 'cpu'
             logger.info(f"Using device: {self.device}")
             self.model.to(self.device)
+            
             self.cap = None
             self.colors = {
-                'person': (0, 255, 0),    'car': (255, 0, 0),
-                'dog': (0, 165, 255),     'cat': (255, 0, 255),
-                'bird': (255, 255, 0),    'laptop': (128, 0, 255),
-                'cell phone': (0, 255, 255)
+                'rock': (255, 0, 0),      # Red
+                'paper': (0, 255, 0),     # Green
+                'scissors': (0, 0, 255),   # Blue
             }
-            self.default_color = (0, 0, 255)
+            self.default_color = (128, 128, 128)  # Gray for other objects
+            
+            logger.info(f"Available classes: {self.model.names}")
+            
         except Exception as e:
             logger.error(f"Initialization failed: {e}")
             sys.exit(1)
@@ -64,15 +67,28 @@ class Detection:
         if frame is None:
             return None
         try:
-            results = self.model.predict(frame, conf=0.25, verbose=False)[0]
+            # Detect objects
+            results = self.model.predict(frame, conf=0.3, verbose=False)[0]
+            
+            # Process each detection
             for box in results.boxes:
                 confidence = float(box.conf[0])
                 class_id = int(box.cls[0])
                 class_name = results.names[class_id]
-                self.draw_box(frame, box.xyxy[0].tolist(), f'{class_name} {confidence:.1%}', class_name)
+                
+                # Draw the detection
+                self.draw_box(
+                    frame,
+                    box.xyxy[0].tolist(),
+                    f'{class_name} {confidence:.1%}',
+                    class_name
+                )
+            
             return frame
+            
         except Exception as e:
             logger.error(f"Processing error: {e}")
+            logger.exception(e)
             return frame
 
     def initialize_camera(self):

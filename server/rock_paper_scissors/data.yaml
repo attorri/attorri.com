@@ -1,0 +1,9 @@
+path: /Users/christianattorri/Documents/GitHub/attorri.com/server/rock_paper_scissors
+train: train/images
+val: train/images
+test: train/images
+nc: 3
+names: ['rock', 'paper', 'scissors']
+
+# Download script/URL (optional)
+download: https://universe.roboflow.com/ds/YOUR_DATASET_URL 
