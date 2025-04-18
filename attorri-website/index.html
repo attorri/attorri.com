@@ -25,10 +25,30 @@
 
         body {
             margin: 0;
+            padding: 0;
             font-family: 'Inter', sans-serif;
             background: var(--background-gradient);
             color: var(--text-color);
             line-height: 1.6;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .page-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
         }
 
         .hero-section {
@@ -326,144 +346,7 @@
     </style>
 </head>
 <body>
-    <div class="page-container" style="width: 100%; margin-top: 10px;">
-        <header class="top-nav">
-            <a href="/" class="logo">
-                Chris Attorri
-            </a>
-            <nav class="nav-links">
-                <a href="#" class="nav-link">Documentation</a>
-                <a href="#" class="nav-link">About</a>
-                <a href="#" class="nav-link">Blog</a>
-                <a href="#" class="button-primary">Login/Signup</a>
-            </nav>
-        </header>
-
-        <main class="main-content">
-
-            <div style="margin: 40px auto; max-width: 100%; padding: 0;">
-                <div id="root"></div>
-                <script type="module" src="/src/main.tsx"></script>
-                <section class="cta-section" style="
-                    background: var(--gradient-blue);
-                    padding: 40px 20px;
-                    text-align: center;
-                    color: white;
-                    margin-top: 80px;
-                    position: relative;
-                    overflow: hidden;
-                    width: 100%;
-                ">
-                    <div class="blue-orb orb-1" style="
-                        position: absolute;
-                        width: 800px;
-                        height: 800px;
-                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-                        filter: blur(150px);
-                        opacity: 0.5;
-                        border-radius: 50%;
-                        z-index: 1;
-                        pointer-events: none;
-                        top: -400px;
-                        right: -200px;
-                        animation: floatOrb 20s infinite alternate ease-in-out;
-                    "></div>
-                    <div class="cta-content" style="
-                        max-width: 800px;
-                        margin: 0 auto;
-                        position: relative;
-                        z-index: 2;
-                    ">
-                        <h2 style="
-                            font-size: 36px;
-                            margin-bottom: 16px;
-                            color: white;
-                        ">Curious to learn more?</h2>
-                        <p style="
-                            font-size: 18px;
-                            line-height: 1.6;
-                            margin-bottom: 24px;
-                            color: rgba(255, 255, 255, 0.9);
-                        ">Join our newsletter to get the latest updates on me and my interests. I'm making sweeping changes to my life and I'd love to have you along for the ride.</p>
-                        <a href="#" class="cta-button-white" style="
-                            display: inline-block;
-                            background: white;
-                            color: var(--primary-blue);
-                            padding: 12px 24px;
-                            border-radius: 8px;
-                            text-decoration: none;
-                            font-weight: 600;
-                            transition: transform 0.2s ease, box-shadow 0.2s ease;
-                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                        ">Get Plugged In Now</a>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Animate title with bounce
-            gsap.to('.hero-title', {
-                opacity: 1,
-                y: 0,
-                duration: 1,
-                ease: "back.out(1.2)"
-            });
-
-            // Animate subtitle with fade up
-            gsap.to('.hero-subtitle', {
-                opacity: 1,
-                y: 0,
-                duration: 1,
-                delay: 0.3,
-                ease: "power3.out"
-            });
-
-            // Animate cards
-            gsap.from('.feature-card', {
-                opacity: 0,
-                y: 50,
-                duration: 0.8,
-                stagger: 0.2,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: '.cards-section',
-                    start: 'top center+=100'
-                }
-            });
-
-            // Animate feature items
-            gsap.from('.feature-item', {
-                opacity: 0,
-                y: 30,
-                duration: 0.8,
-                stagger: 0.2,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: '.feature-grid',
-                    start: 'top center+=100'
-                }
-            });
-
-            // Animate orbs
-            gsap.to('.blue-orb', {
-                y: "random(-20, 20)",
-                x: "random(-20, 20)",
-                duration: "random(3, 5)",
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut",
-                stagger: {
-                    amount: 2,
-                    from: "random"
-                }
-            });
-        });
-    </script>
-    <script type="module" src="/src/App.tsx"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
